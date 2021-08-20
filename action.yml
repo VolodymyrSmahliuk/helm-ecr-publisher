@@ -1,0 +1,30 @@
+name: 'Helm2S3 Publisher'
+description: 'Github action that allows publishing helm chart to S3'
+inputs:
+  bucket:
+    description: 'Target S3 bucket'
+    required: true
+  folder: 
+    description: 'Path in S3 bucket'
+    required: true
+    default: "stable"
+  name:
+    description: 'Helm chart name'
+    required: true
+  version:
+    description: 'Helm chart version'
+    required: true
+  source: 
+    description: 'Path to chart'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - run: helm plugin install https://github.com/hypnoglow/helm-s3.git
+      shell: bash 
+    - run: helm repo add ${{ inputs.chart }} s3://${{ inputs.bucket }}/${{ inputs.folder }}/${{ inputs.chart }}
+      shell: bash 
+    - run: helm package ${{ inputs.source }} --version ${{ inputs.version }}
+      shell: bash 
+    - run: helm s3 push ./${{ inputs.chart }}-${{ inputs.version }}.tgz ${{ inputs.chart }}
+      shell: bash 
