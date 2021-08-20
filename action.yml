@@ -42,7 +42,7 @@ runs:
     - run: helm package ${{ inputs.source }} --version ${{ inputs.version }}
       shell: bash 
 
-    - run: helm s3 push ./${{ inputs.chart }}-${{ inputs.version }}.tgz ${{ inputs.chart }}
+    - run: helm s3 push ./${{ inputs.chart }}-${{ inputs.version }}.tgz ${{ inputs.chart }} --force
       shell: bash 
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
