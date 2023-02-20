@@ -32,8 +32,13 @@ runs:
       id: login-ecr
 
     - run: |
-        helm package ${{ inputs.source }} --version ${{ inputs.version }}
-        mv ./${{ inputs.source }}-${{ inputs.version }}.tgz ./${{ inputs.ecr }}-${{ inputs.version }}.tgz
+        DESTINATION=$(helm package ${{ inputs.source }} --version ${{ inputs.version }} | awk -F 'Successfully packaged chart and saved it to: ' '{print $2}')
+        echo "destination=${DESTINATION}" >> $GITHUB_ENV
+      shell: bash
+      id: helm-package
+
+    - run: |
+        mv ${{ steps.helm-package.outputs.destination }} ./${{ inputs.ecr }}-${{ inputs.version }}.tgz
         helm push ./${{ inputs.ecr }}-${{ inputs.version }}.tgz oci://$ECR_REGISTRY
       shell: bash
       env:
