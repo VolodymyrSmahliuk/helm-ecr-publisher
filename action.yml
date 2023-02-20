@@ -1,5 +1,5 @@
-name: "Helm2S3 Publisher"
-description: "Github action that allows publishing helm chart to S3"
+name: "Helm2ECR Publisher"
+description: "Github action that allows publishing helm chart to ECR"
 inputs:
   ecr:
     description: "Target ECR repository. Equals to a helm-chart name."
