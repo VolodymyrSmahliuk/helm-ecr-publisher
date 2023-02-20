@@ -2,10 +2,7 @@ name: "Helm2S3 Publisher"
 description: "Github action that allows publishing helm chart to S3"
 inputs:
   ecr:
-    description: "Target ECR bucket"
-    required: true
-  chart:
-    description: "Helm chart name"
+    description: "Target ECR repository. Equals to a helm-chart name."
     required: true
   version:
     description: "Helm chart version"
@@ -37,7 +34,7 @@ runs:
     - run: helm package ${{ inputs.source }} --version ${{ inputs.version }}
       shell: bash
 
-    - run: helm push ./${{ inputs.chart }}-${{ inputs.version }}.tgz oci://$ECR_REGISTRY
+    - run: helm push ./${{ inputs.ecr }}-${{ inputs.version }}.tgz oci://$ECR_REGISTRY
       shell: bash
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
