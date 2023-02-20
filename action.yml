@@ -31,10 +31,10 @@ runs:
     - uses: aws-actions/amazon-ecr-login@v1
       id: login-ecr
 
-    - run: helm package ${{ inputs.source }} --version ${{ inputs.version }}
-      shell: bash
-
-    - run: helm push ./${{ inputs.ecr }}-${{ inputs.version }}.tgz oci://$ECR_REGISTRY
+    - run: |
+        helm package ${{ inputs.source }} --version ${{ inputs.version }}
+        mv ./${{ inputs.source }}-${{ inputs.version }}.tgz ./${{ inputs.ecr }}-${{ inputs.version }}.tgz
+        helm push ./${{ inputs.ecr }}-${{ inputs.version }}.tgz oci://$ECR_REGISTRY
       shell: bash
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
