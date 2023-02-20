@@ -1,13 +1,9 @@
 name: "Helm2S3 Publisher"
 description: "Github action that allows publishing helm chart to S3"
 inputs:
-  bucket:
-    description: "Target S3 bucket"
+  ecr:
+    description: "Target ECR bucket"
     required: true
-  folder:
-    description: "Path in S3 bucket"
-    required: true
-    default: "stable"
   chart:
     description: "Helm chart name"
     required: true
@@ -15,7 +11,7 @@ inputs:
     description: "Helm chart version"
     required: true
   source:
-    description: "Path to chart"
+    description: "Path to chart in repo"
     required: true
   aws-access-key-id:
     description: "AWS Access Key ID"
@@ -29,22 +25,19 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: helm plugin install https://github.com/hypnoglow/helm-s3.git
-      shell: bash
-
-    - run: helm repo add ${{ inputs.chart }} s3://${{ inputs.bucket }}/${{ inputs.folder }}/${{ inputs.chart }}
-      shell: bash
-      env:
+    - uses: aws-actions/configure-aws-credentials@v1
+      with:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
         AWS_DEFAULT_REGION: ${{ inputs.aws-region }}
+
+    - uses: aws-actions/amazon-ecr-login@v1
+      id: login-ecr
 
     - run: helm package ${{ inputs.source }} --version ${{ inputs.version }}
       shell: bash
 
-    - run: helm s3 push ./${{ inputs.chart }}-${{ inputs.version }}.tgz ${{ inputs.chart }} --force
+    - run: helm push ./${{ inputs.chart }}-${{ inputs.version }}.tgz oci://$ECR_REGISTRY
       shell: bash
       env:
-        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-        AWS_DEFAULT_REGION: ${{ inputs.aws-region }}
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
