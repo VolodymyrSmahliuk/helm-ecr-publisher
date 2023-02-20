@@ -33,7 +33,7 @@ runs:
 
     - run: |
         DESTINATION=$(helm package ${{ inputs.source }} --version ${{ inputs.version }} | awk -F 'Successfully packaged chart and saved it to: ' '{print $2}')
-        echo "destination=${DESTINATION}" >> $GITHUB_ENV
+        echo "destination=${DESTINATION}" >> $GITHUB_OUTPUT
       shell: bash
       id: helm-package
 
