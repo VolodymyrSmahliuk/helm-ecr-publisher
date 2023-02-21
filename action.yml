@@ -29,8 +29,8 @@ runs:
       id: login-ecr
 
     - run: |
-        helm package ${{ inputs.source }} --version ${{ inputs.version }}
-        helm push ./${{ inputs.source }}-${{ inputs.version }}.tgz oci://$ECR_REGISTRY
+        ARCHIVE_PATH=$(helm package ${{ inputs.source }} --version ${{ inputs.version }} | awk -F 'Successfully packaged chart and saved it to: ' '{print $2}')
+        helm push $ARCHIVE_PATH oci://$ECR_REGISTRY
       shell: bash
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
